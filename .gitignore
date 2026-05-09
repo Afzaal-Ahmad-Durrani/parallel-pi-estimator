@@ -1,1 +1,27 @@
-mpi/*bin
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Executables specific to this project
+openmp/pi_openmp
+pthreads/pi_pthreads
+mpi/pi_mpi
+
+# General executable extensions (just in case)
+*.exe
+*.out
+*.app
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
