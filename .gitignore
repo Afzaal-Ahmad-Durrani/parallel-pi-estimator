@@ -11,6 +11,7 @@
 openmp/pi_openmp
 pthreads/pi_pthreads
 mpi/pi_mpi
+mpi/machine_limit
 
 # General executable extensions (just in case)
 *.exe
