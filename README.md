@@ -21,6 +21,7 @@ By computing this summation up to a very large number of terms ($N$), we can app
 ## <b>Repository Structure</b>
 ```text
 parallel-pi-estimator/
+├── cuda/            # Cuda implementation 
 ├── mpi/             # Message Passing Interface (MPI) implementation
 ├── openmp/          # OpenMP implementation
 ├── pthreads/        # POSIX Threads implementation
@@ -51,6 +52,13 @@ This implementation uses the Message Passing Interface for distributed-memory pa
 - <b>Synchronization:</b> Once each process finishes computing its <code>local_sum</code>, <code>MPI_Reduce</code> is used to collect and sum all local values into the <code>global_sum</code> on the master process.
 
 
+### <b>4. CUDA (<code>cuda/</code>)</b>
+
+This implementation utilizes NVIDIA's Compute Unified Device Architecture (CUDA) to massively parallelize the computation on a GPU, taking advantage of thousands of concurrent threads.
+
+- <b>Workload Division:</b> The user specifies the total number of blocks, and the host dynamically calculates the required number of threads per block to cover all $N$ terms. Each GPU thread uses its unique global 1D index (computed via <code>blockIdx.x * blockDim.x + threadIdx.x</code>) to independently calculate a single term in the series.
+- <b>Synchronization:</b> To safely accumulate the results into the <code>global_sum</code> without race conditions, the kernel utilizes CUDA's <code>atomicAdd</code> function directly in device memory. Because the program uses double-precision floating-point numbers, this specific atomic operation requires a GPU with a compute capability of 6.0 or higher, which must be specified during compilation.
+
 ## <b>Prerequisites</b>
 To compile and run these programs, you will need:
 
@@ -58,6 +66,7 @@ To compile and run these programs, you will need:
 - POSIX Threads library (standard on Linux/macOS)
 - OpenMP support (standard with modern GCC)
 - An MPI implementation (e.g., OpenMPI or MPICH)
+- CUDA Compiler (e.g nvcc)
 
 ## <b>Compilation and Usage</b>
 Navigate into the respective directories to compile and run the programs.
@@ -87,4 +96,13 @@ mpicc -g -Wall pi_mpi.c -o pi_mpi
 
 # Run: mpiexec -n <number_of_processes> ./pi_mpi <number_of_terms>
 mpiexec -n 4 ./pi_mpi 1000000000
+```
+
+### <b>CUDA</b>
+```bash
+# Compile
+nvcc -g -Wall pi_cuda.cu -o pi_cuda -arch=sm_60
+
+# Run: ./pi_pthreads <number of blocks> <number_of_terms>
+./pi_cuda 976563 1000000000
 ```
